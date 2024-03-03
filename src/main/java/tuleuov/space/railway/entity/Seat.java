@@ -16,5 +16,5 @@ public class Seat {
     @JoinColumn(name = "carriage_id")
     private Carriage carriage;
     private int price;
-    // Дополнительные поля, описывающие место в вагоне, например, тип места, стоимость и т.д.
+    private boolean isOccupied = false;
 }

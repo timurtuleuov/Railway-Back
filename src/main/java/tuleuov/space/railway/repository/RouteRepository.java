@@ -16,5 +16,4 @@ public interface RouteRepository extends JpaRepository<Route, Long> {
 
     @Query("SELECT DISTINCT r FROM Route r JOIN r.stationSchedules ss1 JOIN r.stationSchedules ss2 WHERE ss1.station.id = :stationId1 AND ss2.station.id = :stationId2")
     List<Route> findRoutesByStations(@Param("stationId1") Long stationId1, @Param("stationId2") Long stationId2);
-
 }

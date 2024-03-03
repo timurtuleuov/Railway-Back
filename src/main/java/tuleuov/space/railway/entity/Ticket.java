@@ -26,6 +26,10 @@ public class Ticket {
     private Carriage carriage;
 
     @ManyToOne
+    @JoinColumn(name = "seat_id")
+    private Seat seat;
+
+    @ManyToOne
     @JoinColumn(name = "user_phone")
     private User user;
 

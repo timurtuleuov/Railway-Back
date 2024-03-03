@@ -1,7 +1,9 @@
 package tuleuov.space.railway.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tuleuov.space.railway.dto.GetRouteByNameRequest;
+import tuleuov.space.railway.dto.GetRouteByStationRequest;
 import tuleuov.space.railway.dto.RouteRequest;
 import tuleuov.space.railway.entity.Route;
 import tuleuov.space.railway.entity.Station;
@@ -40,7 +42,14 @@ public class HomeController {
         String routeName = request.getRouteName();
         return routeService.getRoutesByRouteName(routeName);
     }
-
+    @GetMapping("/find-by-stations")
+    public ResponseEntity<List<Route>> findRoutesByStations(@RequestBody GetRouteByStationRequest request) {
+        List<Route> routes = routeService.findRoutesByStationNames(request.getStationFirst(), request.getStationSecond());
+        if (routes.isEmpty()) {
+            return ResponseEntity.notFound().build(); // Маршруты не найдены
+        }
+        return ResponseEntity.ok(routes);
+    }
 
     @GetMapping("/get-routes")
     @PreAuthorize("permitAll()")

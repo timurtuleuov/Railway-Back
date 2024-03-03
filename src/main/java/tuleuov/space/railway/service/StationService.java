@@ -44,7 +44,7 @@ public class StationService {
 
         return stationRepository.save(existingStation);
     }
-    
+
     public Long findStationIdByName(String stationName) {
         Station station = stationRepository.findByStationName(stationName);
         return station != null ? station.getId() : null;
