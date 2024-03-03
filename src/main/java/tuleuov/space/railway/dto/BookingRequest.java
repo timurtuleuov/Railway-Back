@@ -7,7 +7,7 @@ import lombok.Data;
 @Schema(description = "Запрос на билетик")
 public class BookingRequest {
     private double amount;
-    private Long userId;
+    private String phone;
     private Long routeId;
     private Long trainId;
 }

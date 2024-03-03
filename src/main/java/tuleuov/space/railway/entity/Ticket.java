@@ -26,7 +26,7 @@ public class Ticket {
     private Carriage carriage;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_phone")
     private User user;
 
     private LocalDateTime purchaseTime;

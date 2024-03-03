@@ -13,14 +13,15 @@ public class Route {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String routeName;
 
-
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
-            name = "route_station",
+            name = "route_station_schedule",
             joinColumns = @JoinColumn(name = "route_id"),
-            inverseJoinColumns = @JoinColumn(name = "station_id")
+            inverseJoinColumns = @JoinColumn(name = "station_schedule_id")
     )
-    private Set<Station> stations = new HashSet<>();
+    private Set<StationSchedule> stationSchedules = new HashSet<>();
 }
+

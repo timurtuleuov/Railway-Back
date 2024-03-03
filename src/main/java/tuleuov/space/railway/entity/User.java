@@ -68,6 +68,10 @@ public class User implements UserDetails {
         return true;
     }
 
+    public Role getRole() {
+        return role;
+    }
+
     @Override
     public boolean isCredentialsNonExpired() {
         return true;

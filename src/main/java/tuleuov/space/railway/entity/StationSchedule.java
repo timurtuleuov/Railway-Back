@@ -1,17 +1,22 @@
 package tuleuov.space.railway.entity;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity
-public class Carriage {
+public class StationSchedule {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int numberCarriage;
     @ManyToOne
-    @JoinColumn(name = "train_id")
-    private Train train;
-    private String type;
+    private Station station;
+
+    private LocalDateTime arrivalTime;
+
+    private LocalDateTime departureTime;
 }

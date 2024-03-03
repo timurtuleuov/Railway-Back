@@ -5,10 +5,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class RouteRequest {
-
-
     private String routeName;
-
+    private List<StationScheduleRequest> stationSchedules;
 }
+

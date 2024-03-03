@@ -1,5 +1,6 @@
 package tuleuov.space.railway.service;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tuleuov.space.railway.entity.Route;
@@ -19,23 +20,28 @@ public class RouteService {
     public RouteService(RouteRepository routeRepository) {
         this.routeRepository = routeRepository;
     }
+    public Route initializeRoute(Route route) {
+        Hibernate.initialize(route.getStationSchedules());
+        return route;
+    }
     public Route createRoute(Route route){
         return routeRepository.save(route);
     }
 
     public Route getRouteById(Long routeId) {
-        Route route = routeRepository.getById(routeId);
-        return route;
-    }
-    public Route getRouteByRouteName(String routeName) {
-        Optional<Route> optionalRoute = routeRepository.findRouteByRouteName(routeName);
-        return optionalRoute.orElse(null);
+        return routeRepository.findById(routeId)
+                .orElse(null);
     }
 
+    public Route getRouteByRouteName(String routeName) {
+        return routeRepository.findRouteByRouteName(routeName)
+                .orElse(null);
+    }
 
     public void deleteRouteById(Long routeId) {
         routeRepository.deleteById(routeId);
     }
+
     public Route updateRoute(Route route) {
         if (route.getId() == null) {
             throw new IllegalArgumentException("Route must have an ID for update.");
@@ -47,4 +53,13 @@ public class RouteService {
     public List<Route> getAll() {
         return routeRepository.findAll();
     }
+    public List<Route> getRoutesByRouteName(String routeName) {
+        return routeRepository.findRoutesByRouteName(routeName);
+    }
+
+//  Поиск маршрута по 2 станциям
+    public List<Route> findRoutesByStations(Long stationId1, Long stationId2) {
+        return routeRepository.findRoutesByStations(stationId1, stationId2);
+    }
 }
+

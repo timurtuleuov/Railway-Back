@@ -25,7 +25,7 @@ public class BookingController {
     @PostMapping("/book-ticket")
     public ResponseEntity<String> bookTicketWithPayment(@RequestBody BookingRequest request) {
         try {
-            Ticket bookedTicket = bookingService.bookTicketWithPayment(request.getAmount(), request.getTrainId(), request.getRouteId(), request.getUserId());
+            Ticket bookedTicket = bookingService.bookTicketWithPayment(request.getAmount(), request.getTrainId(), request.getRouteId(), request.getPhone());
             return ResponseEntity.ok("Билетик куплен. ID Билета: " + bookedTicket.getId());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Билетик не получилось купить: " + e.getMessage());

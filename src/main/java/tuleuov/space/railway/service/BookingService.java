@@ -27,9 +27,9 @@ public class BookingService {
     }
 
     @Transactional
-    public Ticket bookTicketWithPayment(double amount, Long trainId, Long routeId, Long userId) {
+    public Ticket bookTicketWithPayment(double amount, Long trainId, Long routeId, String userPhone) {
 
-        User user = userService.getUserById(userId);
+        User user = userService.getUserByPhone(userPhone);
 
 
         Ticket ticket = new Ticket();

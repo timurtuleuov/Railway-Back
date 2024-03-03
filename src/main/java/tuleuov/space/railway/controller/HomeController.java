@@ -1,10 +1,13 @@
 package tuleuov.space.railway.controller;
 
 import org.springframework.web.bind.annotation.*;
+import tuleuov.space.railway.dto.GetRouteByNameRequest;
 import tuleuov.space.railway.dto.RouteRequest;
 import tuleuov.space.railway.entity.Route;
+import tuleuov.space.railway.entity.Station;
 import tuleuov.space.railway.entity.Train;
 import tuleuov.space.railway.service.RouteService;
+import tuleuov.space.railway.service.StationService;
 import tuleuov.space.railway.service.TrainService;
 import tuleuov.space.railway.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,15 +25,22 @@ public class HomeController {
     private final UserService service;
     private final TrainService trainService;
     private final RouteService routeService;
+    private final StationService stationService;
     @GetMapping("/get-trains")
     @PreAuthorize("permitAll()")
     public List<Train> getTrains() {return trainService.getAll();}
 
+    @GetMapping("/get-stations")
+    @PreAuthorize("permitAll()")
+    public List<Station> getStations() {return stationService.getAll();}
+
     @GetMapping("/get-route-by-name")
     @PreAuthorize("permitAll()")
-    public Route getRouteByName(@RequestBody RouteRequest routeName) {
-        return routeService.getRouteByRouteName(routeName.getRouteName());
+    public List<Route> getRouteByName(@RequestBody GetRouteByNameRequest request) {
+        String routeName = request.getRouteName();
+        return routeService.getRoutesByRouteName(routeName);
     }
+
 
     @GetMapping("/get-routes")
     @PreAuthorize("permitAll()")

@@ -15,6 +15,6 @@ public class Payment {
     @JoinColumn(name = "ticket_id")
     private Ticket ticket;
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_phone")
     private User user;
 }

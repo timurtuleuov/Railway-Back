@@ -55,7 +55,10 @@ public class UserService {
         var username = SecurityContextHolder.getContext().getAuthentication().getName();
         return getByUsername(username);
     }
-
+    public User getUserByPhone(String phone) {
+        return repository.findByPhone(phone)
+                .orElseThrow(() -> new EntityNotFoundException("User with phone " + phone + " not found"));
+    }
     @Deprecated
     public void getAdmin() {
         var user = getCurrentUser();

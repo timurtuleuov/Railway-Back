@@ -9,5 +9,10 @@ public class Train {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String trainName;
+
+    @ManyToOne
+    @JoinColumn(name = "route_id")
+    private Route route;
 
 }
