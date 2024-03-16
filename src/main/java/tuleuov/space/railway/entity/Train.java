@@ -1,5 +1,6 @@
 package tuleuov.space.railway.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import jakarta.persistence.*;
 
@@ -18,6 +19,8 @@ public class Train {
     @ManyToOne
     @JoinColumn(name = "route_id")
     private Route route;
-    @OneToMany(mappedBy = "train", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @OneToMany(mappedBy = "train", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Carriage> carriages = new ArrayList<>();
+
 }

@@ -16,5 +16,7 @@ public class Seat {
     @JoinColumn(name = "carriage_id")
     private Carriage carriage;
     private int price;
-    private boolean isOccupied = false;
+    @Column(name = "is_occupied", nullable = false)
+    private Boolean isOccupied;
+
 }

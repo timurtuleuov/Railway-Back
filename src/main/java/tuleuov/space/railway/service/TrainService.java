@@ -27,7 +27,9 @@ public class TrainService {
         Train train = trainRepository.getById(trainId);
         return train;
     }
-
+    public List<Train> getTrainsByRoute(Long routeId) {
+        return trainRepository.findByRouteId(routeId);
+    }
     public void deleteTrain(Long trainId) {
         trainRepository.deleteById(trainId);
     }

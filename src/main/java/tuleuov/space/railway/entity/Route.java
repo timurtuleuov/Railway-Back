@@ -16,7 +16,7 @@ public class Route {
 
     private String routeName;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
             name = "route_station_schedule",
             joinColumns = @JoinColumn(name = "route_id"),

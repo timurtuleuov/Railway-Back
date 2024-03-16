@@ -6,23 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import tuleuov.space.railway.dto.RouteRequest;
-import tuleuov.space.railway.dto.StationRequest;
-import tuleuov.space.railway.dto.StationScheduleRequest;
-import tuleuov.space.railway.dto.TrainRequest;
-import tuleuov.space.railway.entity.Route;
-import tuleuov.space.railway.entity.Station;
-import tuleuov.space.railway.entity.StationSchedule;
-import tuleuov.space.railway.entity.Train;
-import tuleuov.space.railway.service.RouteService;
-import tuleuov.space.railway.service.StationScheduleService;
-import tuleuov.space.railway.service.StationService;
-import tuleuov.space.railway.service.TrainService;
+import tuleuov.space.railway.dto.*;
+import tuleuov.space.railway.entity.*;
+import tuleuov.space.railway.service.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/railway")
@@ -31,22 +19,85 @@ public class RailwayController {
     private final RouteService routeService;
     private final StationService stationService;
     private final StationScheduleService stationScheduleService;
-
+    private final CarriageService carriageService;
+    private final SeatService seatService;
     @Autowired
-    public RailwayController(TrainService trainService, RouteService routeService, StationService stationService, StationScheduleService stationScheduleService) {
+    public RailwayController(TrainService trainService, RouteService routeService,
+                             StationService stationService, SeatService seatService,
+                             StationScheduleService stationScheduleService, CarriageService carriageService) {
         this.trainService = trainService;
         this.routeService = routeService;
         this.stationService = stationService;
         this.stationScheduleService = stationScheduleService;
+        this.carriageService = carriageService;
+        this.seatService = seatService;
     }
 
 
     @PostMapping("/create-train")
-    public Train createTrain(@RequestBody TrainRequest request) {
+    public ResponseEntity<String> createTrain(@RequestBody TrainRequest request) {
         Train train = new Train();
         train.setTrainName(request.getTrainName());
-        return trainService.createTrain(train);
+
+        // Получаем маршрут по идентификатору, если указан
+        if (request.getRouteId() != null) {
+            Route route = routeService.getRouteById(request.getRouteId());
+            if (route != null) {
+                train.setRoute(route);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Маршрут с id " + request.getRouteId() + " не найден");
+            }
+        }
+
+        // Сохраняем поезд в базе данных
+        trainService.createTrain(train);
+
+        // Создаем 5 вагонов: 2 купе, 2 плацкарта и 1 ресторан
+        List<Carriage> carriages = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            Carriage coupeCarriage = new Carriage();
+            coupeCarriage.setType("Купе");
+            coupeCarriage.setNumberCarriage(i + 1);
+            coupeCarriage.setTrain(train);
+            coupeCarriage.setSeats(createSeats(20, coupeCarriage));
+            carriages.add(coupeCarriage);
+
+            Carriage reservedSeatCarriage = new Carriage();
+            reservedSeatCarriage.setType("Плацкарт");
+            reservedSeatCarriage.setNumberCarriage(i + 1);
+            reservedSeatCarriage.setTrain(train);
+            reservedSeatCarriage.setSeats(createSeats(20, reservedSeatCarriage));
+            carriages.add(reservedSeatCarriage);
+        }
+
+        Carriage restaurantCarriage = new Carriage();
+        restaurantCarriage.setType("Ресторан");
+        restaurantCarriage.setNumberCarriage(1);
+        restaurantCarriage.setTrain(train);
+        carriages.add(restaurantCarriage);
+
+        // Сохраняем вагоны в базе данных
+        for (Carriage carriage : carriages) {
+            carriageService.createCarriage(carriage);
+        }
+
+        return ResponseEntity.ok("Поезд успешно создан");
     }
+
+    private List<Seat> createSeats(int numberOfSeats, Carriage carriage) {
+        List<Seat> seats = new ArrayList<>();
+        for (int i = 0; i < numberOfSeats; i++) {
+            Seat seat = new Seat();
+            seat.setSeatNumber(i + 1);
+            seat.setPrice(1000); // Установите цену по умолчанию, если необходимо
+            seat.setCarriage(carriage);
+            seat.setIsOccupied(false); // Изначально все места свободны
+            seats.add(seat);
+        }
+        return seats;
+    }
+
+
     @PostMapping("/create-station")
     public Station createStation(@RequestBody StationRequest request) {
         Station station = new Station();
@@ -97,13 +148,53 @@ public class RailwayController {
         Train existingTrain = trainService.getTrainById(trainId);
         if (existingTrain != null) {
             existingTrain.setTrainName(request.getTrainName());
-            // Обновление других полей, если необходимо
+
+            // Получаем маршрут по идентификатору, если указан
+            if (request.getRouteId() != null) {
+                Route route = routeService.getRouteById(request.getRouteId());
+                if (route != null) {
+                    existingTrain.setRoute(route);
+                } else {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Маршрут с id " + request.getRouteId() + " не найден");
+                }
+            }
+
+            // Обновляем вагоны, если они указаны в запросе
+            if (request.getCarriages() != null && !request.getCarriages().isEmpty()) {
+                for (CarriageRequest carriageRequest : request.getCarriages()) {
+                    Carriage existingCarriage = carriageService.getCarriageById(carriageRequest.getId());
+                    if (existingCarriage != null) {
+                        // Обновляем данные вагона
+                        existingCarriage.setType(carriageRequest.getType());
+                        existingCarriage.setNumberCarriage(carriageRequest.getNumberCarriage());
+                        // Обновляем места в вагоне, если они указаны
+                        if (carriageRequest.getSeats() != null && !carriageRequest.getSeats().isEmpty()) {
+                            List<Seat> updatedSeats = new ArrayList<>();
+                            for (SeatRequest seatRequest : carriageRequest.getSeats()) {
+                                Seat existingSeat = seatService.getSeatByNumberAndCarriageId(seatRequest.getSeatNumber(), carriageRequest.getId());
+                                if (existingSeat != null) {
+                                    // Обновляем данные места
+                                    existingSeat.setSeatNumber(seatRequest.getSeatNumber());
+                                    existingSeat.setPrice((int) seatRequest.getPrice());
+                                    existingSeat.setIsOccupied(seatRequest.isOccupied());
+                                    updatedSeats.add(existingSeat);
+                                }
+                            }
+                            existingCarriage.setSeats(updatedSeats);
+                        }
+                        carriageService.updateCarriage(existingCarriage);
+                    }
+                }
+            }
+
             trainService.updateTrain(trainId, existingTrain);
             return ResponseEntity.ok("Поезд с id " + trainId + " успешно обновлен");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Поезд с id " + trainId + " не найден");
         }
     }
+
+
 
     // Обновление информации о станции
     @PutMapping("/update-station/{stationId}")

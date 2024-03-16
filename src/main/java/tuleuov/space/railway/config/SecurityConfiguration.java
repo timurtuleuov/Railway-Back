@@ -43,7 +43,7 @@ public class SecurityConfiguration {
                     return corsConfiguration;
                 }))
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/**", "/home/get-trains", "/home/get-routes").permitAll()
+                        .requestMatchers("/auth/**", "/home/seats-by-carriage", "home/get-seat", "/home/carriages-by-train", "/home/find-by-stations", "/home/get-route-by-name", "/home/get-trains", "/home/get-routes", "/ws", "/carriage-seats", "/carriage-seats/*").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/swagger-resources/*", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/endpoint", "/admin/**", "/api/railway").hasRole("ADMIN")
                         .anyRequest().authenticated())

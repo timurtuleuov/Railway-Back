@@ -2,12 +2,8 @@ package tuleuov.space.railway.dto;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-public class TrainRequest {
+public class TrainCreateRequest {
     private String trainName;
     private Long routeId;
-    private List<CarriageRequest> carriages;
-
 }

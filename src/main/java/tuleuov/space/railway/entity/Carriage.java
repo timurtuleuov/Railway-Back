@@ -1,4 +1,5 @@
 package tuleuov.space.railway.entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,6 +18,8 @@ public class Carriage {
     @JoinColumn(name = "train_id")
     private Train train;
     private String type;
-    @OneToMany(mappedBy = "carriage", cascade = CascadeType.ALL)
+    private boolean status = false;
+    @OneToMany(mappedBy = "carriage", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Seat> seats = new ArrayList<>();
 }
